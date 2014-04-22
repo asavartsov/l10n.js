@@ -70,6 +70,25 @@ var
 		return JSON.parse(req.responseText);
 	}
 }
+, flatten_Object = function(ob) {
+	var returnObject = {};
+
+	for (var i in ob) {
+		if (!has_own_prop.call(ob, i)) continue;
+
+		if ((typeof ob[i]) === "object") {
+			var flatObject = flatten_Object(ob[i]);
+			for (var x in flatObject) {
+				if (!has_own_prop.call(flatObject, x)) continue;
+
+				returnObject[i + '.' + x] = flatObject[x];
+			}
+		} else {
+			returnObject[i] = ob[i];
+		}
+	}
+	return returnObject;
+}
 , load = String_ctr[$to_locale_string] = function (data) {
 	// don't handle function.toLocaleString(indentationAmount:Number)
 	if (arguments.length > 0 && typeof data !== "number") {
@@ -111,7 +130,7 @@ var
 					
 					for (message in localization) {
 						if (has_own_prop.call(localization, message)) {
-							localizations[locale][message] = localization[message];
+							localizations[locale] = flatten_Object(localization);
 						}
 					}
 				}
